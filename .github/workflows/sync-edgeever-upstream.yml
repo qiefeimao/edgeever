@@ -7,13 +7,12 @@ name: Update deployed EdgeEver
 
 on:
   schedule:
-    - cron: "17 2 * * *"
+    - cron: "0 19 * * *"
   workflow_dispatch:
     inputs:
       channel:
         description: Update channel for this run (stable = latest formal Release, edge = upstream main)
         required: true
-        default: stable
         type: choice
         options:
           - stable
