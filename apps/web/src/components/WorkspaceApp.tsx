@@ -1,4 +1,3 @@
-import { useNoteImport } from "@/lib/note-import/use-note-import";
 import { NotebookAppearanceDialog } from "./dialogs/NotebookAppearanceDialog";
 import type { NotebookUpdateInput } from "@edgeever/shared";
 import { startPosterClientRenderer } from "@/lib/poster-client-render";
@@ -85,7 +84,7 @@ import {
   resolveSelectionMoveTargetNotebookId,
 } from "@/lib/app-helpers";
 import { useBrowserBackLayer } from "@/lib/app-hooks";
-import { sortDesktopTitleMemoSummaries, updateMemoSummaryInLists } from "@/lib/memo-list-cache";
+import { updateMemoSummaryInLists } from "@/lib/memo-list-cache";
 import {
   cacheMemoDetail,
   evictIdleMemoDetails,
@@ -652,8 +651,6 @@ export const WorkspaceApp = ({
     });
   }, [invalidateWorkspaceQueries, repository, runQueuedSync, syncSummary.total]);
 
-  const noteImport = useNoteImport(authRequired ? user?.id ?? null : null, user?.displayName || user?.username || "Local", async () => { await refreshWorkspaceFromServer("manual"); });
-
   const refreshedBackupRestores = useRef(new Set<string>());
   useEffect(() => {
     const bridge = window.edgeeverDesktop;
@@ -1152,11 +1149,8 @@ export const WorkspaceApp = ({
       }
     }
 
-    const loadedMemos = Array.from(memoMap.values());
-    return window.edgeeverDesktop?.isAvailable && (memoSortMode === "title-asc" || memoSortMode === "title-desc")
-      ? sortDesktopTitleMemoSummaries(loadedMemos, memoSortMode)
-      : loadedMemos;
-  }, [memosQuery.data?.pages, mobileEditorReturnPreview, memoSortMode]);
+    return Array.from(memoMap.values());
+  }, [memosQuery.data?.pages, mobileEditorReturnPreview]);
   const totalMemoCount = memosQuery.data?.pages[0]?.totalCount ?? memos.length;
   const handleLoadMoreMemos = useCallback(() => {
     if (!memosQuery.hasNextPage || memosQuery.isFetchingNextPage) {
@@ -3687,7 +3681,6 @@ export const WorkspaceApp = ({
                     demoMode={demoMode}
                     isOwner={authRequired && user?.role === "owner"}
                     user={user}
-                    noteImport={noteImport}
                     refreshWorkspaceAfterImport={async () => {
                       await refreshWorkspaceFromServer("manual");
                     }}
